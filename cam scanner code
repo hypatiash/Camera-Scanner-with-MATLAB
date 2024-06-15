@@ -1,0 +1,589 @@
+
+
+properties (Access = private)
+        numFiles;
+        img;
+        filePath;
+        fileNames;
+        UIAxesArray         matlab.ui.control.UIAxes
+        CurrentAxesIndex;
+        rot_value;
+        selectedTab;
+        output;
+
+        % Description
+    end
+
+
+    % Callbacks that handle component events
+    methods (Access = private)
+
+        % Button pushed function: UploadImagesButton
+        function UploadImagesButtonPushed(app, event)
+            % Button pushed function: TakeanImageButton
+            [app.fileNames, app.filePath] = uigetfile({'*.jpg;*.png;*.bmp;*.jpeg', 'Image Files'}, ...
+                'Select Images', 'MultiSelect', 'on');
+
+
+            if ~iscell(app.fileNames)
+                app.fileNames = {app.fileNames};
+
+            end
+            app.numFiles = length(app.fileNames);
+
+            for i = 1:app.numFiles
+                % Dosyayı oku
+                imagePath = fullfile(app.filePath, app.fileNames{i});
+                app.img = imread(imagePath);
+
+
+                % Görseli uygun uiaxes üzerinde göster
+                switch i
+                    case 1
+                        imshow(app.img, 'Parent', app.UIAxes1);
+                    case 2
+                        imshow(app.img, 'Parent', app.UIAxes2);
+                    case 3
+                        imshow(app.img, 'Parent', app.UIAxes3);
+                    case 4
+                        imshow(app.img, 'Parent', app.UIAxes4);
+                    case 5
+                        imshow(app.img, 'Parent', app.UIAxes5);
+                    case 6
+                        imshow(app.img, 'Parent', app.UIAxes6);
+                    case 7
+                        imshow(app.img, 'Parent', app.UIAxes7);
+                    case 8
+                        imshow(app.img, 'Parent', app.UIAxes8);
+                    case 9
+                        imshow(app.img, 'Parent', app.UIAxes9);
+                    case 10
+                        imshow(app.img, 'Parent', app.UIAxes10);
+
+                end
+            end
+
+
+
+
+
+
+        end
+
+        % Button pushed function: exitButton
+        function exitButtonPushed(app, event)
+            delete(app);
+        end
+
+        % Button pushed function: ScanButton
+        function ScanButtonPushed(app, event)
+            for i = 1:app.numFiles
+                app.img = imread(fullfile(app.filePath, app.fileNames{i}));
+                [row,col,ch] = size(app.img);
+
+
+                fhv = app.UIFigure.HandleVisibility;        % Current status
+                app.UIFigure.HandleVisibility = 'callback'; % Temp change (or, 'on')
+                set(0, 'CurrentFigure', app.UIFigure)       % Make fig current
+
+                [boxm] = ginput(4);                        % run ginput
+
+                app.UIFigure.HandleVisibility = fhv;
+                boxm = round(reshape(boxm, [], 2));
+
+                % Check if the number of selected points is correct
+                if size(boxm, 1) ~= 4
+                    error('Please select the correct number of points.');
+                end
+
+                boxf = [1 1;
+                    1 row;
+                    col row;
+                    col 1];
+                TF = fitgeotrans(boxm, boxf, 'projective');
+
+
+                % Apply the transformation to the image
+                outview = imref2d(size(app.img));
+
+                app.output= imwarp(app.img, TF, 'fillvalues', 255, 'outputview', outview);
+                final_B=rgb2gray(app.output);
+
+
+                switch i
+                    case 1
+                        imshow(final_B, 'Parent', app.UIAxes1);
+                    case 2
+                        imshow(final_B, 'Parent', app.UIAxes2);
+                    case 3
+                        imshow(final_B, 'Parent', app.UIAxes3);
+                    case 4
+                        imshow(final_B, 'Parent', app.UIAxes4);
+                    case 5
+                        imshow(final_B, 'Parent', app.UIAxes5);
+                    case 6
+                        imshow(final_B, 'Parent', app.UIAxes6);
+                    case 7
+                        imshow(final_B, 'Parent', app.UIAxes7);
+                    case 8
+                        imshow(final_B, 'Parent', app.UIAxes8);
+                    case 9
+                        imshow(final_B, 'Parent', app.UIAxes9);
+                    case 10
+                        imshow(final_B, 'Parent', app.UIAxes10);
+                end
+
+                pause(6);
+
+            end
+
+        end
+
+        % Value changed function: RotateDropDown
+        function RotateDropDownValueChanged(app, event)
+            value = app.RotateDropDown.Value;
+            switch value
+                case '90'
+                    app.rot_value = 90;
+                case '180'
+                    app.rot_value = 180;
+                case '270'
+                    app.rot_value = 270;
+                case '-90'
+                    app.rot_value = -90;
+                case '-180'
+                    app.rot_value = -180;
+                case '-270'
+                    app.rot_value = -270;
+                case '0'
+                    app.rot_value = 0;
+            end
+
+            app.selectedTab = app.TabGroup.SelectedTab;
+
+            switch app.selectedTab.Title
+                case 'Tab1'
+                    currentImage = app.UIAxes1.Children.CData;
+
+                    rotatedImage = imrotate(currentImage, app.rot_value);
+
+                    imshow(rotatedImage, 'Parent', app.UIAxes1);
+                case 'Tab2'
+                    currentImage = app.UIAxes2.Children.CData;
+
+                    rotatedImage = imrotate(currentImage, app.rot_value);
+
+                    imshow(rotatedImage, 'Parent', app.UIAxes2);
+                case 'Tab3'
+                    currentImage = app.UIAxes3.Children.CData;
+
+                    rotatedImage = imrotate(currentImage, app.rot_value);
+
+                    imshow(rotatedImage, 'Parent', app.UIAxes3);
+                case 'Tab4'
+                    currentImage = app.UIAxes4.Children.CData;
+
+                    rotatedImage = imrotate(currentImage, app.rot_value);
+
+                    imshow(rotatedImage, 'Parent', app.UIAxes4);
+                case 'Tab5'
+                    currentImage = app.UIAxes5.Children.CData;
+
+                    rotatedImage = imrotate(currentImage, app.rot_value);
+
+                    imshow(rotatedImage, 'Parent', app.UIAxes5);
+                case 'Tab6'
+                    currentImage = app.UIAxes6.Children.CData;
+
+                    rotatedImage = imrotate(currentImage, app.rot_value);
+
+                    imshow(rotatedImage, 'Parent', app.UIAxes6);
+                case 'Tab7'
+                    currentImage = app.UIAxes7.Children.CData;
+
+                    rotatedImage = imrotate(currentImage, app.rot_value);
+
+                    imshow(rotatedImage, 'Parent', app.UIAxes7);
+                case 'Tab8'
+                    currentImage = app.UIAxes8.Children.CData;
+
+                    rotatedImage = imrotate(currentImage, app.rot_value);
+
+                    imshow(rotatedImage, 'Parent', app.UIAxes8);
+                case 'Tab9'
+                    currentImage = app.UIAxes9.Children.CData;
+
+                    rotatedImage = imrotate(currentImage, app.rot_value);
+
+                    imshow(rotatedImage, 'Parent', app.UIAxes9);
+                case 'Tab10'
+                    currentImage = app.UIAxes10.Children.CData;
+
+                    rotatedImage = imrotate(currentImage, app.rot_value);
+
+                    imshow(rotatedImage, 'Parent', app.UIAxes10);
+            end
+        end
+
+        % Drop down opening function: RotateDropDown
+        function RotateDropDownOpening(app, event)
+            app.rot_value = 0;
+        end
+
+        % Button pushed function: downloadButton
+        function downloadButtonPushed(app, event)
+            app.selectedTab = app.TabGroup.SelectedTab;
+
+            switch app.selectedTab.Title
+                case 'Tab1'
+
+                    fig = figure();
+                    currentImage = app.UIAxes1.Children.CData;
+
+                    ax = axes(fig);
+                    imshow(currentImage, 'Parent', ax);
+                    set(fig, 'Visible', 'off');
+
+                    [filename, pathname] = uiputfile('*.png', 'Save As');
+                    if isequal(filename, 0) || isequal(pathname, 0)
+                        return;
+                    end
+
+                    imwrite(currentImage, fullfile(pathname, filename), 'png', 'Compression', 'none');
+
+                    close(fig);
+
+                case 'Tab2'
+                    fig = figure();
+                    currentImage = app.UIAxes2.Children.CData;
+
+                    ax = axes(fig);
+                    imshow(currentImage, 'Parent', ax);
+                    set(fig, 'Visible', 'off');
+
+                    [filename, pathname] = uiputfile('*.png', 'Save As');
+                    if isequal(filename, 0) || isequal(pathname, 0)
+                        return;
+                    end
+
+                    imwrite(currentImage, fullfile(pathname, filename), 'png', 'Compression', 'none');
+
+                    close(fig);
+                case 'Tab3'
+                    fig = figure();
+                    currentImage = app.UIAxes3.Children.CData;
+
+                    ax = axes(fig);
+                    imshow(currentImage, 'Parent', ax);
+                    set(fig, 'Visible', 'off');
+
+                    [filename, pathname] = uiputfile('*.png', 'Save As');
+                    if isequal(filename, 0) || isequal(pathname, 0)
+                        return;
+                    end
+
+                    imwrite(currentImage, fullfile(pathname, filename), 'png', 'Compression', 'none');
+
+                    close(fig);
+                case 'Tab4'
+                    fig = figure();
+                    currentImage = app.UIAxes4.Children.CData;
+
+                    ax = axes(fig);
+                    imshow(currentImage, 'Parent', ax);
+                    set(fig, 'Visible', 'off');
+
+                    [filename, pathname] = uiputfile('*.png', 'Save As');
+                    if isequal(filename, 0) || isequal(pathname, 0)
+                        return;
+                    end
+
+                    imwrite(currentImage, fullfile(pathname, filename), 'png', 'Compression', 'none');
+
+                    close(fig);
+                case 'Tab5'
+                    fig = figure();
+                    currentImage = app.UIAxes5.Children.CData;
+
+                    ax = axes(fig);
+                    imshow(currentImage, 'Parent', ax);
+                    set(fig, 'Visible', 'off');
+
+                    [filename, pathname] = uiputfile('*.png', 'Save As');
+                    if isequal(filename, 0) || isequal(pathname, 0)
+                        return;
+                    end
+
+                    imwrite(currentImage, fullfile(pathname, filename), 'png', 'Compression', 'none');
+
+                    close(fig);
+                case 'Tab6'
+                    fig = figure();
+                    currentImage = app.UIAxes6.Children.CData;
+
+                    ax = axes(fig);
+                    imshow(currentImage, 'Parent', ax);
+                    set(fig, 'Visible', 'off');
+
+                    [filename, pathname] = uiputfile('*.png', 'Save As');
+                    if isequal(filename, 0) || isequal(pathname, 0)
+                        return;
+                    end
+
+                    imwrite(currentImage, fullfile(pathname, filename), 'png', 'Compression', 'none');
+
+                    close(fig);
+                case 'Tab7'
+                    fig = figure();
+                    currentImage = app.UIAxes7.Children.CData;
+
+                    ax = axes(fig);
+                    imshow(currentImage, 'Parent', ax);
+                    set(fig, 'Visible', 'off');
+
+                    [filename, pathname] = uiputfile('*.png', 'Save As');
+                    if isequal(filename, 0) || isequal(pathname, 0)
+                        return;
+                    end
+
+                    imwrite(currentImage, fullfile(pathname, filename), 'png', 'Compression', 'none');
+
+                    close(fig);
+                case 'Tab8'
+                    fig = figure();
+                    currentImage = app.UIAxes8.Children.CData;
+
+                    ax = axes(fig);
+                    imshow(currentImage, 'Parent', ax);
+                    set(fig, 'Visible', 'off');
+
+                    [filename, pathname] = uiputfile('*.png', 'Save As');
+                    if isequal(filename, 0) || isequal(pathname, 0)
+                        return;
+                    end
+
+                    imwrite(currentImage, fullfile(pathname, filename), 'png', 'Compression', 'none');
+
+                    close(fig);
+                case 'Tab9'
+                    fig = figure();
+                    currentImage = app.UIAxes9.Children.CData;
+
+                    ax = axes(fig);
+                    imshow(currentImage, 'Parent', ax);
+                    set(fig, 'Visible', 'off');
+
+                    [filename, pathname] = uiputfile('*.png', 'Save As');
+                    if isequal(filename, 0) || isequal(pathname, 0)
+                        return;
+                    end
+
+                    imwrite(currentImage, fullfile(pathname, filename), 'png', 'Compression', 'none');
+
+                    close(fig);
+                case 'Tab10'
+                    fig = figure();
+                    currentImage = app.UIAxes10.Children.CData;
+
+                    ax = axes(fig);
+                    imshow(currentImage, 'Parent', ax);
+                    set(fig, 'Visible', 'off');
+
+                    [filename, pathname] = uiputfile('*.png','Save As');
+                    if isequal(filename, 0) || isequal(pathname, 0)
+                        return;
+                    end
+
+                    imwrite(currentImage, fullfile(pathname, filename), 'png', 'Compression', 'none');
+
+                    close(fig);
+            end
+
+        end
+
+        % Button pushed function: binarizeButton
+        function binarizeButtonPushed(app, event)
+            selectedTabTitle=app.TabGroup.SelectedTab.Title;
+            switch selectedTabTitle
+                case 'Tab1'
+                    currentImage = app.UIAxes1.Children.CData;
+                    currentImage=im2double(currentImage);
+                    app.output = imbinarize(currentImage,'adaptive','ForegroundPolarity','dark');
+                    currentImage=app.output;
+                    imshow(currentImage, 'Parent', app.UIAxes1)
+
+
+                case 'Tab2'
+                    currentImage = app.UIAxes2.Children.CData;
+                    currentImage=im2double(currentImage);
+                    app.output = imbinarize(currentImage,'adaptive','ForegroundPolarity','dark');
+                    currentImage=app.output;
+                    imshow(currentImage, 'Parent', app.UIAxes2)
+
+
+                case 'Tab3'
+                    currentImage = app.UIAxes3.Children.CData;
+                    currentImage=im2double(currentImage);
+                    app.output = imbinarize(currentImage,'adaptive','ForegroundPolarity','dark');
+                    currentImage=app.output;
+                    imshow(currentImage, 'Parent', app.UIAxes3)
+
+
+
+                case 'Tab4'
+                    currentImage = app.UIAxes4.Children.CData;
+                    currentImage=im2double(currentImage);
+                    app.output = imbinarize(currentImage,'adaptive','ForegroundPolarity','dark');
+                    currentImage=app.output;
+                    imshow(currentImage, 'Parent', app.UIAxes4)
+
+
+
+                case 'Tab5'
+                    currentImage = app.UIAxes5.Children.CData;
+                    currentImage=im2double(currentImage);
+                    app.output = imbinarize(currentImage,'adaptive','ForegroundPolarity','dark');
+                    currentImage=app.output;
+                    imshow(currentImage, 'Parent', app.UIAxes5)
+
+
+
+                case 'Tab6'
+                    currentImage = app.UIAxes6.Children.CData;
+                    currentImage=im2double(currentImage);
+                    app.output = imbinarize(currentImage,'adaptive','ForegroundPolarity','dark');
+                    currentImage=app.output;
+                    imshow(currentImage, 'Parent', app.UIAxes6)
+
+
+
+                case 'Tab7'
+                    currentImage = app.UIAxes7.Children.CData;
+                    currentImage=im2double(currentImage);
+                    app.output = imbinarize(currentImage,'adaptive','ForegroundPolarity','dark');
+                    currentImage=app.output;
+                    currentImage = app.UIAxes7.Children.CData;
+                    imshow(currentImage, 'Parent', app.UIAxes7)
+
+
+
+                case 'Tab8'
+                    currentImage = app.UIAxes8.Children.CData;
+                    currentImage=im2double(currentImage);
+                    app.output = imbinarize(currentImage,'adaptive','ForegroundPolarity','dark');
+                    currentImage=app.output;
+                    imshow(currentImage, 'Parent', app.UIAxes8)
+
+
+
+                case 'Tab9'
+                    currentImage = app.UIAxes9.Children.CData;
+                    currentImage=im2double(currentImage);
+                    app.output = imbinarize(currentImage,'adaptive','ForegroundPolarity','dark');
+                    currentImage=app.output;
+                    imshow(currentImage, 'Parent', app.UIAxes9)
+
+
+
+                case 'Tab10'
+                    currentImage = app.UIAxes10.Children.CData;
+                    currentImage=im2double(currentImage);
+                    app.output = imbinarize(currentImage,'adaptive','ForegroundPolarity','dark');
+                    currentImage=app.output;
+                    imshow(currentImage, 'Parent', app.UIAxes10)
+
+            end
+        end
+
+        % Button pushed function: histogrameqButton
+        function histogrameqButtonPushed(app, event)
+            selectedTabTitle=app.TabGroup.SelectedTab.Title;
+            switch selectedTabTitle
+                case 'Tab1'
+                    currentImage = app.UIAxes1.Children.CData;
+                    currentImage=im2double(currentImage);
+                    app.output = adapthisteq(currentImage);
+                    currentImage=app.output;
+                    imshow(currentImage, 'Parent', app.UIAxes1)
+
+
+                case 'Tab2'
+                    currentImage = app.UIAxes2.Children.CData;
+                    currentImage=im2double(currentImage);
+                    app.output = adapthisteq(currentImage);                   
+                    currentImage=app.output;
+                    imshow(currentImage, 'Parent', app.UIAxes2)
+
+
+                case 'Tab3'
+                    currentImage = app.UIAxes3.Children.CData;
+                    currentImage=im2double(currentImage);
+                    app.output = adapthisteq(currentImage);
+                    currentImage=app.output;
+                    imshow(currentImage, 'Parent', app.UIAxes3)
+
+
+
+                case 'Tab4'
+                    currentImage = app.UIAxes4.Children.CData;
+                    currentImage=im2double(currentImage);
+                    app.output = adapthisteq(currentImage);
+                    currentImage=app.output;
+                    imshow(currentImage, 'Parent', app.UIAxes4)
+
+
+
+                case 'Tab5'
+                    currentImage = app.UIAxes5.Children.CData;
+                    currentImage=im2double(currentImage);
+                    app.output = adapthisteq(currentImage);
+                    currentImage=app.output;
+                    imshow(currentImage, 'Parent', app.UIAxes5)
+
+
+
+                case 'Tab6'
+                    currentImage = app.UIAxes6.Children.CData;
+                    currentImage=im2double(currentImage);
+                    app.output = adapthisteq(currentImage);
+                    currentImage=app.output;
+                    imshow(currentImage, 'Parent', app.UIAxes6)
+
+
+
+                case 'Tab7'
+                    currentImage = app.UIAxes7.Children.CData;
+                    currentImage=im2double(currentImage);
+                    app.output = adapthisteq(currentImage);
+                    currentImage=app.output;
+                    currentImage = app.UIAxes7.Children.CData;
+                    imshow(currentImage, 'Parent', app.UIAxes7)
+
+
+
+                case 'Tab8'
+                    currentImage = app.UIAxes8.Children.CData;
+                    currentImage=im2double(currentImage);
+                    app.output = adapthisteq(currentImage);
+                    currentImage=app.output;
+                    imshow(currentImage, 'Parent', app.UIAxes8)
+
+
+
+                case 'Tab9'
+                    currentImage = app.UIAxes9.Children.CData;
+                    currentImage=im2double(currentImage);
+                    app.output = adapthisteq(currentImage);
+                    currentImage=app.output;
+                    imshow(currentImage, 'Parent', app.UIAxes9)
+
+
+
+                case 'Tab10'
+                    currentImage = app.UIAxes10.Children.CData;
+                    currentImage=im2double(currentImage);
+                    app.output = adapthisteq(currentImage);
+                    currentImage=app.output;
+                    imshow(currentImage, 'Parent', app.UIAxes10)
+
+            end
